@@ -1,0 +1,112 @@
+import React, { useState, useEffect } from 'react';
+import { Navbar } from './components/Navbar';
+import { Hero } from './components/Hero';
+import { SkillsGrid } from './components/SkillsGrid';
+import { CurriculumRoadmap } from './components/CurriculumRoadmap';
+import { AchievementsSection } from './components/AchievementsSection';
+import { VideoShowcase } from './components/VideoShowcase';
+import { PaymentSection } from './components/PaymentSection';
+import { FaqChat } from './components/FaqChat';
+import { Footer } from './components/Footer';
+import { PaymentModal } from './components/PaymentModal';
+import { AdminDashboard } from './components/AdminDashboard';
+import { Enrollment } from './types';
+import { ArrowRight, MessageCircle } from 'lucide-react';
+
+export default function App() {
+  const [isAdminView, setIsAdminView] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  // Check URL path hash or query for admin
+  useEffect(() => {
+    if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
+      setIsAdminView(true);
+    }
+  }, []);
+
+  const handleEnrollmentSuccess = (enrollment: Enrollment) => {
+    console.log('New enrollment completed:', enrollment.id);
+  };
+
+  const whatsappDirectUrl = `https://wa.me/?text=${encodeURIComponent(
+    'Hello AnuPrakash Mam, I want to enroll in the 7-Day Digital Marketing Course (₹199 - 10 Skills in Telugu)!'
+  )}`;
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
+      {/* Top Navbar */}
+      <Navbar
+        isAdminView={isAdminView}
+        setIsAdminView={(val) => {
+          setIsAdminView(val);
+          window.location.hash = val ? 'admin' : '';
+        }}
+        onOpenEnrollment={() => setIsPaymentModalOpen(true)}
+      />
+
+      {/* Main Content Area */}
+      <main className="flex-1">
+        {isAdminView ? (
+          <AdminDashboard onCloseAdmin={() => setIsAdminView(false)} />
+        ) : (
+          <>
+            {/* 1. Hero Section with Coach Portrait & Direct Contact */}
+            <Hero onOpenEnrollment={() => setIsPaymentModalOpen(true)} />
+
+            {/* 2. The 10 Skills Grid */}
+            <SkillsGrid onOpenEnrollment={() => setIsPaymentModalOpen(true)} />
+
+            {/* 3. 7-Day Curriculum & Zoomable Poster Gallery */}
+            <CurriculumRoadmap onOpenEnrollment={() => setIsPaymentModalOpen(true)} />
+
+            {/* 4. Coach Achievements & Industry Recognition Photos */}
+            <AchievementsSection />
+
+            {/* 5. Real Class Video Clips */}
+            <VideoShowcase />
+
+            {/* 6. Secure Payment Gateway Simulation & Scanner */}
+            <PaymentSection onSuccess={handleEnrollmentSuccess} />
+
+            {/* 7. Automated Query / FAQ Section with Instant Auto-Reply */}
+            <FaqChat onOpenEnrollment={() => setIsPaymentModalOpen(true)} />
+
+            {/* Quiet Footer */}
+            <Footer
+              onOpenEnrollment={() => setIsPaymentModalOpen(true)}
+              onOpenAdmin={() => setIsAdminView(true)}
+            />
+
+            {/* Mobile Fixed Quick CTA Bar (<15% mobile viewport height) */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 p-2.5 bg-neutral-950/95 backdrop-blur-md border-t border-neutral-800 flex items-center gap-2">
+              <a
+                href={whatsappDirectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0"
+                title="Direct WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5" />
+              </a>
+
+              <button
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-98"
+              >
+                <span>Enroll Now @ ₹199 (10 Skills)</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
+        )}
+      </main>
+
+      {/* Checkout & UPI Scanner Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onSuccess={handleEnrollmentSuccess}
+      />
+    </div>
+  );
+}
